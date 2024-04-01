@@ -21,9 +21,6 @@
     <ClCompile Include="LoadingData.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Drawing.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -39,9 +36,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="LoadingData.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Drawing.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Caption.h">

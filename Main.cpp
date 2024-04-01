@@ -6,15 +6,16 @@
 
 //Функции
 #include "LoadingData.h"
-#include "Drawing.h"
 
 Player player;	//Игрок
 vector<Enemy*> enemy;	//Враги
 Map gameMap;	//Карта
-int gameState = 0;	//0 - игра, 1 - победа, 2 - поражение
+int gameState = 0;	//0 - игра, 1 - победа, 2 - поражение (анимация), 3 - поражение (конец анимации)
+sf::Vector2i windowSize;
 
 vector<sf::Texture> texture;
-Caption score;
+Caption score;	//Счёт (текст)
+Caption txt_Win, txt_Loose;	//Текст победы и поражения
 sf::Clock animationTimer;
 
 void key_pressing(sf::Event event, sf::RenderWindow* window)
@@ -24,14 +25,14 @@ void key_pressing(sf::Event event, sf::RenderWindow* window)
 
 	if (event.type == sf::Event::KeyPressed && gameState == 0)
 	{
-		if (event.key.code == sf::Keyboard::W)	//Движение вверх
-			player.move(sf::Vector2f(player.position.x, player.position.y - 1), &gameMap);
-		else if (event.key.code == sf::Keyboard::S)	//Движение вниз
-			player.move(sf::Vector2f(player.position.x, player.position.y + 1), &gameMap);
-		else if (event.key.code == sf::Keyboard::A)	//Движение влево
-			player.move(sf::Vector2f(player.position.x - 1, player.position.y), &gameMap);
-		else if (event.key.code == sf::Keyboard::D)	//Движение вправо
-			player.move(sf::Vector2f(player.position.x + 1, player.position.y), &gameMap);
+		if (event.key.code == sf::Keyboard::W || event.key.code == sf::Keyboard::Up)	//Движение вверх
+			player.move(sf::Vector2i(player.position.x, player.position.y - 1), &gameMap);
+		else if (event.key.code == sf::Keyboard::S || event.key.code == sf::Keyboard::Down)	//Движение вниз
+			player.move(sf::Vector2i(player.position.x, player.position.y + 1), &gameMap);
+		else if (event.key.code == sf::Keyboard::A || event.key.code == sf::Keyboard::Left)	//Движение влево
+			player.move(sf::Vector2i(player.position.x - 1, player.position.y), &gameMap);
+		else if (event.key.code == sf::Keyboard::D || event.key.code == sf::Keyboard::Right)	//Движение вправо
+			player.move(sf::Vector2i(player.position.x + 1, player.position.y), &gameMap);
 	}
 }
 
@@ -46,6 +47,7 @@ void gamelogic()
 		{
 			gameState = 2;
 			animationTimer.restart();
+			enemy.erase(remove(enemy.begin(), enemy.end(), e));
 			return;
 		}
 	
@@ -67,11 +69,20 @@ int main()
 	srand(std::time(nullptr));
 	loadingData(&gameMap, &player, &enemy);
 	score.setPosition(sf::Vector2f(10.0f, gameMap.getMapSizeVertical() * 25.0f));
-		
-	sf::RenderWindow window(sf::VideoMode(gameMap.getMapSizeHorizontal() * 25, gameMap.getMapSizeVertical() * 25 + 40), "Game");
+	windowSize = sf::Vector2i(gameMap.getMapSizeHorizontal() * 25, gameMap.getMapSizeVertical() * 25 + 40);
+
+	sf::RenderWindow window(sf::VideoMode(windowSize.x, windowSize.y), "PacMan");
 	window.setFramerateLimit(60);
-	window.setTitle("PacMan");
 	window.setKeyRepeatEnabled(false);
+
+	txt_Win.setText("YOU WIN!");
+	txt_Win.setSize(50);
+	txt_Win.setColor(sf::Color(3, 145, 255));
+	txt_Win.setPosition(sf::Vector2f(windowSize.x / 2 - txt_Win.getTextSize().x / 2, windowSize.y / 2 - txt_Win.getTextSize().y / 2 - 20));
+	txt_Loose.setText("YOU LOOSE!");
+	txt_Loose.setSize(50);
+	txt_Loose.setColor(sf::Color(255, 0, 0));
+	txt_Loose.setPosition(sf::Vector2f(windowSize.x / 2 - txt_Loose.getTextSize().x / 2, windowSize.y / 2 - txt_Loose.getTextSize().y / 2 - 20));
 
 	while (window.isOpen())
 	{
@@ -90,7 +101,26 @@ int main()
 		if (gameState == 0) gamelogic();
 
 		//Отрисовка
-		drawing(&window, &texture, &gameMap, &player, &enemy, &animationTimer, gameState, &score);
+		gameMap.draw(&window);					//Отрисовка стен и еды
+		for (auto e : enemy) e->draw(&window);	//Отрисовка врагов
+
+		if (gameState == 0 || gameState == 1) player.setState(0);	//Отрисовка живого игрока (игра, победа)
+		else if (gameState == 2)	//Отрисовка умирающего игрока
+		{
+			float t = animationTimer.getElapsedTime().asMilliseconds();
+			if (t < 500) player.setState(1);
+			else if (t >= 500 && t < 1000) player.setState(2);
+			else if (t >= 1000)
+			{
+				player.setState(3);	//Мёртвый игрок
+				gameState = 3;
+			}
+		}
+		player.draw(&window);
+
+		window.draw(score.getText());	//Счёт
+		if (gameState == 1) window.draw(txt_Win.getText());			//Текст победы
+		else if (gameState == 2 || gameState == 3) window.draw(txt_Loose.getText());	//Текст поражения
 
 		window.display();
 	}

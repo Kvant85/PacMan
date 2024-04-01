@@ -10,12 +10,11 @@ class Enemy : public Actor
 public:
 	float speed = 0.3f;
 	bool haveTarget = false;
-	sf::Vector2f target;
+	sf::Vector2i target;
 
 	Enemy()
 	{
 		texture.loadFromFile("Data/textures/enemy.png");
-		rect.setSize(sf::Vector2f(25, 25));
 		rect.setTexture(&texture);
 	}
 
@@ -26,22 +25,21 @@ public:
 			timer.restart();
 
 			//ПОИСК ИГРОКА (проверка линий взгляда на предмет наличия игрока)
-			sf::Vector2f searchView;
+			sf::Vector2i searchView(0, 0);
 			int mapSizeX = gameMap->getMapSizeHorizontal(), mapSizeY = gameMap->getMapSizeVertical();
 			for (int i = 0; i < 4; i++)	//0 - вверх, 1 - вправо, 2 - вниз, 3 - влево
 			{
-				searchView.x = 0;
-				searchView.y = 0;
+				searchView = sf::Vector2i(0, 0);
 				while (true)
 				{
 					//Проверка на упор взгляда в стену
-					if (gameMap->getWallsData(sf::Vector2f(position.x + searchView.x, position.y + searchView.y)))
+					if (gameMap->getWallsData(sf::Vector2i(position.x + searchView.x, position.y + searchView.y)))
 					{
 						//Проверка на взгляд на игрока						
-						if (sf::Vector2f(position.x + searchView.x, position.y + searchView.y) == gameMap->getPlayerPosition())
+						if (sf::Vector2i(position.x + searchView.x, position.y + searchView.y) == gameMap->getPlayerPosition())
 						{
 							//Нашли игрока
-							target = sf::Vector2f(position.x + searchView.x, position.y + searchView.y);
+							target = sf::Vector2i(position.x + searchView.x, position.y + searchView.y);
 							haveTarget = true;
 							break;
 						}
@@ -57,31 +55,31 @@ public:
 				}
 			}
 
-			float movX = 0, movY = 0;
 			//ДВИЖЕНИЕ
+			sf::Vector2i movement(0, 0);
 			//Рандомное движение
 			if (!haveTarget)
 			{
 				while (true)
 				{
 					//Рандомное направление движения
-					movX = (rand() % 3) - 1;
-					movY = (rand() % 3) - 1;
-					if (movX != 0 && movY != 0)	//Запрещаем движение по диагонали
+					movement.x = (rand() % 3) - 1;
+					movement.y = (rand() % 3) - 1;
+					if (movement.x != 0 && movement.y != 0)	//Запрещаем движение по диагонали
 					{
 						int rnd = rand() % 2;
-						if (rnd == 1) movX = 0;
-						else movY = 0;
+						if (rnd == 1) movement.x = 0;
+						else movement.y = 0;
 					}
-					movX += position.x;
-					movY += position.y;
+					movement.x += position.x;
+					movement.y += position.y;
 
-					if (movX >= 0 && movY >= 0 &&	//Выход за пределы карты (нижняя граница)
-						movX < gameMap->getMapSizeHorizontal() && movY < gameMap->getMapSizeVertical() &&	//Выход за пределы карты (верхняя граница)
-						gameMap->getWallsData(sf::Vector2f(movX, movY)))	//Проходимость клетки
+					if (movement.x >= 0 && movement.y >= 0 &&	//Выход за пределы карты (нижняя граница)
+						movement.x < gameMap->getMapSizeHorizontal() && movement.y < gameMap->getMapSizeVertical() &&	//Выход за пределы карты (верхняя граница)
+						gameMap->getWallsData(sf::Vector2i(movement.x, movement.y)))	//Проходимость клетки
 					{
 						//Движение
-						setPosition(sf::Vector2f(movX, movY));
+						setPosition(sf::Vector2i(movement.x, movement.y));
 						break;
 					}
 				}
@@ -90,15 +88,15 @@ public:
 			else
 			{
 				//Движение к цели
-				if (position.x > target.x) movX = -1;
-				else if (position.x == target.x) movX = 0;
-				else movX = 1;
+				if (position.x > target.x) movement.x = -1;
+				else if (position.x == target.x) movement.x = 0;
+				else movement.x = 1;
 
-				if (position.y > target.y) movY = -1;
-				else if (position.y == target.y) movY = 0;
-				else movY = 1;
+				if (position.y > target.y) movement.y = -1;
+				else if (position.y == target.y) movement.y = 0;
+				else movement.y = 1;
 
-				setPosition(sf::Vector2f(position.x + movX, position.y + movY));
+				setPosition(sf::Vector2i(position.x + movement.x, position.y + movement.y));
 
 				//Достигли цели - сбрасываем ее
 				if (position.x == target.x && position.y == target.y) haveTarget = false;

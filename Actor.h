@@ -4,12 +4,15 @@ using namespace std;
 
 class Actor
 {
-public:
-	Actor() { }
-	sf::Vector2f position;
 protected: sf::RectangleShape rect;
+public:
+	Actor()
+	{
+		rect.setSize(sf::Vector2f(25, 25));
+	}
+	sf::Vector2i position;
 
-public: void setPosition(sf::Vector2f _pos)
+	void setPosition(sf::Vector2i _pos)
 	{
 		position = _pos;
 		rect.setPosition(sf::Vector2f(_pos.x * 25, _pos.y * 25));

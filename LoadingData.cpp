@@ -40,14 +40,14 @@ void loadingData(Map* gameMap, Player* player, vector<Enemy*>* enemy)
 	{
 		mapFile.read(t1, 2);
 		mapFile.read(t2, 2);
-		gameMap->setFood(sf::Vector2f(stof(t2), stof(t1)));
+		gameMap->setFood(sf::Vector2i(stoi(t2), stoi(t1)));
 	}
 
 	//Чтение данных по старту игрока - 4 байта
 	mapFile.read(t1, 2);
 	mapFile.read(t2, 2);
-	player->setPosition(sf::Vector2f(stof(t1), stof(t2)));
-	gameMap->setPlayerPosition(sf::Vector2f(stof(t1), stof(t2)));
+	player->setPosition(sf::Vector2i(stoi(t1), stoi(t2)));
+	gameMap->setPlayerPosition(sf::Vector2i(stoi(t1), stoi(t2)));
 
 	//Чтение данных по врагам
 	//Число врагов - 2 байта
@@ -59,7 +59,7 @@ void loadingData(Map* gameMap, Player* player, vector<Enemy*>* enemy)
 		mapFile.read(t1, 2);
 		mapFile.read(t2, 2);
 		Enemy* e = new Enemy();
-		e->setPosition(sf::Vector2f(stof(t1), stof(t2)));
+		e->setPosition(sf::Vector2i(stoi(t1), stoi(t2)));
 		enemy->push_back(e);
 	}
 

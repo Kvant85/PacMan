@@ -3,7 +3,7 @@ using namespace std;
 
 struct VectorCompare
 {
-	bool operator() (const sf::Vector2f& a, const sf::Vector2f& b) const {
+	bool operator() (const sf::Vector2i& a, const sf::Vector2i& b) const {
 		if (a.y < b.y) return true;
 		if (a.y > b.y) return false;
 		return (a.x < b.x);
@@ -12,12 +12,11 @@ struct VectorCompare
 
 class Map
 {
-	struct Size { int x; int y; };
-	Size mapSize;
+	sf::Vector2i mapSize;
 
 	vector<vector<int>> cells;	//Ячейки поля
-	map<sf::Vector2f, bool, VectorCompare> food; //Еда
-	sf::Vector2f playerPosition;
+	map<sf::Vector2i, bool, VectorCompare> food; //Еда
+	sf::Vector2i playerPosition;
 
 	vector<sf::Texture> texture;
 	sf::RectangleShape rect;
@@ -65,32 +64,29 @@ public:
 
 	int getMapSizeVertical() { return mapSize.x; }
 	int getMapSizeHorizontal() { return mapSize.y; }
-	bool getWallsData(sf::Vector2f _pos)
+	bool getWallsData(sf::Vector2i _pos)
 	{
 		if (cells.at(_pos.y).at(_pos.x) != 0) return false;
 		else return true;
 	}
-	bool getFoodData(sf::Vector2f _pos)
+	bool getFoodData(sf::Vector2i _pos)
 	{
-		map<sf::Vector2f, bool>::iterator it = food.find(_pos);
+		map<sf::Vector2i, bool>::iterator it = food.find(_pos);
 		if (it != food.end()) return true;
 		else return false;
 	}
 	vector<vector<int>>* getCells() { return &cells; }
-	sf::Vector2f getPlayerPosition() { return playerPosition; }
+	sf::Vector2i getPlayerPosition() { return playerPosition; }
 
 	void setMapSize(int _x, int _y)
 	{
 		mapSize.x = _x;
 		mapSize.y = _y;
 	}
-	void setFood(sf::Vector2f vecFood) { food[vecFood] = true; }
-	void setPlayerPosition(sf::Vector2f _pos) { playerPosition.x = _pos.x; playerPosition.y = _pos.y; }
+	void setFood(sf::Vector2i vecFood) { food[vecFood] = true; }
+	void setPlayerPosition(sf::Vector2i _pos) { playerPosition.x = _pos.x; playerPosition.y = _pos.y; }
 
-	void eraseFood(sf::Vector2f _pos)
-	{
-		food.erase(_pos);
-	}
+	void eraseFood(sf::Vector2i _pos) { food.erase(_pos); }
 
 	int getNumOfFood() { return food.size(); }
 

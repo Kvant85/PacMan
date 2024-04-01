@@ -5,7 +5,7 @@
 class Player : public Actor
 {
 	vector<sf::Texture> texture;
-	int score;
+	int score = 0;
 
 public:
 	Player()
@@ -20,13 +20,12 @@ public:
 		tex.loadFromFile("Data/textures/pacman_dead.png");
 		texture.push_back(tex);
 
-		rect.setSize(sf::Vector2f(25, 25));
 		rect.setTexture(&texture[0]);
 	};
 
 	int getScore() { return score; }
 
-	void move(sf::Vector2f _pos, Map* gameMap)
+	void move(sf::Vector2i _pos, Map* gameMap)
 	{
 		if (_pos.x >= 0 && _pos.y >= 0 &&	//Выход за пределы карты (нижняя граница)
 			_pos.x < gameMap->getMapSizeHorizontal() && _pos.y < gameMap->getMapSizeVertical() &&	//Выход за пределы карты (верхняя граница)
@@ -41,17 +40,14 @@ public:
 				gameMap->eraseFood(_pos);
 				score++;
 			}
-		}
-		
+		}		
 	}
 
-	void draw(sf::RenderWindow* window, int state)
+	//Анимация игрока
+	void setState(int _state) { rect.setTexture(&texture[_state]); }
+
+	void draw(sf::RenderWindow* window)
 	{
-		if (state == 0) window->draw(rect);
-		else
-		{
-			rect.setTexture(&texture[state]);
-			window->draw(rect);
-		}
+		window->draw(rect);
 	}
 };

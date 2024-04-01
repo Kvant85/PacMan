@@ -25,5 +25,6 @@ public:
 		text.setOutlineThickness(1.5f);
 	}
 	void setSize(int size) { text.setCharacterSize(size); }
+	sf::Vector2i getTextSize() { return sf::Vector2i(text.getLocalBounds().width, text.getLocalBounds().height); }
 	sf::Text getText() { return text; }
 };
